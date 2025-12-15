@@ -7,9 +7,8 @@ module.exports = function auth(req, res, next) {
     return res.status(401).json({ error: "No token provided" });
   }
 
-  jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
-    if (err)
-      return res.status(401).json({ error: "Invalid token" });
+  jwt.verify(token, process.env.SECRET, (err, decoded) => {
+    if (err) return res.status(401).json({ error: "Invalid token" });
 
     req.user = decoded;
     next();

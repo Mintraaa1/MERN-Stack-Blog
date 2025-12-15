@@ -1,80 +1,96 @@
-const Post = require("../models/Post");
+const PostModel = require("../models/Post");
 
 exports.createPost = async (req, res) => {
-  try {
-    const { title, content, cover } = req.body;
-
-    const post = await Post.create({
-      title,
-      content,
-      cover,
-      author: req.user.id,
-    });
-
-    res.status(201).json(post);
-  } catch (error) {
-    res.status(500).json({ error: "Cannot create post" });
-  }
-};
-
-exports.getAllPosts = async (req, res) => {
-  try {
-    const posts = await Post.find().populate("author", "username");
+    const { title,sumary, content, cover,author } = req.body;
+    if(!title || !sumary || !content || !cover || !author){
+      return res.status(400).send({
+        message: "Please provide all fields",
+      });
+    }
+    try {
+      const postDoc = await PostModel.create({
+        title,
+        sumary,
+        content,
+        cover,
+        author,
+      });
+      if(!postDoc){
+        return res.status(500).send({
+          message:"Cannot create a new post"
+      });
+      }
+      res.send({message: "Create a new post successfully", data: postDoc});
+    } catch (error) {
+      res.send(500).send({
+          message: error.message || "Cannot create a new post",
+  });
+    }
+}
+  
+exports.getPosts = async (req,res) => {
+  try{
+    const posts = await PostModel.find().populate("author", ["username"]).sort
+    ({createPost: -1}).limit(20);
+    if(!posts){
+      return res.status(404).send({
+        message: "POST not found",
+      });
+    }
     res.json(posts);
-  } catch (error) {
-    res.status(500).json({ error: "Cannot get posts" });
+  } catch(error) {
+    res.status(500).send({
+          message: error.message || "Some eror",
+  });
   }
-};
+}
 
-exports.getPostById = async (req, res) => {
-  try {
-    const post = await Post.findById(req.params.id).populate("author", "username");
+exports.getById = async (req, res) => {
+    const { id } = req.params;
+    if(!id){
+        return res.status(400).send({
+            message: "ID is missing"
+        })
+    }
+    try{
+        const post = await PostModel.findById(id)
+        .populate("author", ["username"])
+        .sort({ createAT: -1})
+        .limit(20);
+        if(!post){
+            return res.status(404).send({
+                message: "POST not found",
+            });
+        }
+        res.json(post);
+    } catch (error) {
+        res.status(500).send({
+        message: error.message || "Some errors occurred while registering a new user",
+    });
+    }
+}
 
-    if (!post) return res.status(404).json({ error: "Post not found" });
-
-    res.json(post);
-  } catch (error) {
-    res.status(500).json({ error: "Cannot get post" });
-  }
-};
-
-exports.updatePost = async (req, res) => {
-  try {
-    const post = await Post.findById(req.params.id);
-
-    if (!post)
-      return res.status(404).json({ error: "Post not found" });
-
-    // อนุญาตเฉพาะเจ้าของโพสต์
-    if (post.author.toString() !== req.user.id)
-      return res.status(403).json({ error: "Unauthorized" });
-
-    post.title = req.body.title || post.title;
-    post.content = req.body.content || post.content;
-    post.cover = req.body.cover || post.cover;
-
-    await post.save();
-
-    res.json(post);
-  } catch (error) {
-    res.status(500).json({ error: "Cannot update post" });
-  }
-};
-
-exports.deletePost = async (req, res) => {
-  try {
-    const post = await Post.findById(req.params.id);
-
-    if (!post)
-      return res.status(404).json({ error: "Post not found" });
-
-    if (post.author.toString() !== req.user.id)
-      return res.status(403).json({ error: "Unauthorized" });
-
-    await post.deleteOne();
-
-    res.json({ message: "Post deleted successfully" });
-  } catch (error) {
-    res.status(500).json({ error: "Cannot delete post" });
-  }
-};
+exports.getByAuthorId = async (req, res) => {
+    const { id } = req.params;
+    if(!id){
+        return res.status(400).send({
+            message: "ID is missing"
+        })
+    }
+    try{
+        const posts = await PostModel.find({ author: id})
+        .populate("author", ["username"])
+        .sort({ createAT: -1})
+        .limit(20);
+        if(!posts){
+            return res.status(404).send({
+                message: "POST not found",
+            });
+        }
+        res.json(posts);
+    } catch (error) {
+        res.status(500).send({
+        message: error.message || "Some errors occurred while registering a new user",
+    });
+    }
+}
