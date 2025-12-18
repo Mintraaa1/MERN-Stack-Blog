@@ -1,8 +1,9 @@
 const PostModel = require("../models/Post");
 
 exports.createPost = async (req, res) => {
-    const { title,sumary, content, cover,author } = req.body;
-    if(!title || !sumary || !content || !cover || !author){
+    const { title,sumary, content, cover } = req.body;
+    const authorId = req.authorId;
+    if(!title || !sumary || !content || !cover){
       return res.status(400).send({
         message: "Please provide all fields",
       });
@@ -13,7 +14,7 @@ exports.createPost = async (req, res) => {
         sumary,
         content,
         cover,
-        author,
+        author: authorId,
       });
       if(!postDoc){
         return res.status(500).send({
@@ -93,4 +94,76 @@ exports.getByAuthorId = async (req, res) => {
         message: error.message || "Some errors occurred while registering a new user",
     });
     }
+}
+
+exports.upDatePost = async (req, res) => {
+  const { id } = req.params;
+  const authorId = req.authorId;
+    if(!id){
+        return res.status(400).send({
+            message: "ID is missing"
+        })
+    }
+    const { title,sumary, content, cover } = req.body;
+    if(!title || !sumary || !content || !cover){
+      return res.status(400).send({
+        message: "Please provide all fields",
+      });
+    } try {
+    const postDoc = await PostModel.findOne({_id:id, author:author });
+    if(!postDoc){
+      return res.status(404).send({message:"Post with this author id is not found" });
+    }
+    if(postDoc.length<0){
+      return res.status(403).send({ message: "Unauthorize to edit this post, because you are not the author of this post", 
+      });
+    } else {
+    //postDoc.title = title;
+    //postDoc.sumary = sumary;
+    //postDoc.content = content;
+    //postDoc.cover = cover;
+    //await postDoc.save();
+    const newPost = await PostModel.findOneAndUpdate(
+    {author: authorId,_id: id },
+    {title, sumary,content,cover },
+    {
+    new:true,
+    }
+    );
+    if (!newPost) {
+      return res.status(500).send({message: "Cannot Update this post" });
+    }
+    res.send({message:"Post updated successfully "})
+    }
+    } catch (error) {
+        res.status(500).send({
+        message: error.message || "Some errors occurred while registering a new user",
+    });
+    }
+    
+};
+
+exports.deletePost = async (req, res) => {
+  const { id } = req.params;
+  const authorId = req.authorId;
+
+  if(!id){
+        return res.status(400).send({
+            message: "Post ID is missing"
+        });
+    }
+    try {
+    const postDoc = await PostModel.findOneAndDelete({
+      author: authorId, 
+      _id: id 
+     });
+    if(!postDoc){
+      return res.status(500).send({message: "Cannot delete this post" });
+    }
+    res.send({message: "Post delete successfully" });
+  }catch (error) {
+        res.status(500).send({
+        message: error.message || "Some errors occurred while registering a new user",
+    });
+}
 }
