@@ -6,10 +6,16 @@ const userRoute = require("./routers/user.router");
 const postRoute = require("./routers/post.router");
 const app = express();
 const PORT = process.env.PORT || 5000;
-const BASE_URL = process.env.BASE_URL;
+const BASE_URL = process.env.FRONTEND_URL;
 const DB_URL = process.env.DB_URL;
 
-app.use(cors({ origin: BASE_URL, credentials: true }));
+app.use(
+  cors({
+    origin: "http://localhost:5173",
+    credentials: true,
+  })
+);
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
