@@ -5,6 +5,9 @@ import Login from "../pages/Login";
 import Register from "../pages/Register";
 import CreatePost from "../pages/CreatePost";
 import EditPost from "../pages/EditPost";
+import MyPosts from "../pages/MyPosts";
+import Author from "../pages/Author";
+
 
 export default function Router() {
   return (
@@ -18,6 +21,8 @@ export default function Router() {
       {/* protected (เดี๋ยวค่อยใส่ guard เพิ่ม) */}
       <Route path="/create" element={<CreatePost />} />
       <Route path="/edit/:id" element={<EditPost />} />
+      <Route path="/my-posts" element={<MyPosts />} />
+      <Route path="/author/:id" element={<Author />} />
     </Routes>
   );
 }

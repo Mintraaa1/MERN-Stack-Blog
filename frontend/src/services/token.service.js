@@ -2,8 +2,12 @@ import { Cookies } from "react-cookie";
 const cookie = new Cookies();
 
 const getUser = () => {
-  return cookie.get("user") || null;
+  const user = cookie.get("user");
+  if (!user) return null;
+
+  return typeof user === "string" ? JSON.parse(user) : user;
 };
+
 
 const getAccessToken = () => {
   const user = getUser();
@@ -29,7 +33,7 @@ const setUser = (user) => {
     }),
     {
       path: "/",
-      expires: new Date(Date.now() + 86400 * 1000), // 1 วัน
+      expires: new Date(Date.now() + 86400 * 1000),
     }
   );
 };

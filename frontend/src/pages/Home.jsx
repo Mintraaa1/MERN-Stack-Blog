@@ -5,14 +5,17 @@ import Footer from "../components/Footer";
 import Post from "./Post";
 import PostService from "../services/post.service";
 import Swal from "sweetalert2";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+
 
 const Home = () => {
   const [posts, setPosts] = useState([]);
   const navigate = useNavigate();
+  const userInfo = JSON.parse(localStorage.getItem("user"));
+
   useEffect(() => {
     const fetchAllPosts = async () => {
-
+      try {
     }
     catch (err) {
       Swal.fire({
@@ -58,7 +61,7 @@ const Home = () => {
 
         {/* CARD 2 */}
         <div
-          onClick={() => navigate("/post/2")}
+          onClick={() => navigate("/my-posts")}
           className="bg-white rounded-xl shadow-md p-4 flex space-x-4 cursor-pointer hover:-translate-y-1 hover:shadow-xl transition"
         >
           <img
@@ -84,3 +87,4 @@ const Home = () => {
     </>
   );
 }
+export default Home;

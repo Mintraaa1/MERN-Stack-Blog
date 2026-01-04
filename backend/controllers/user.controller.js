@@ -60,7 +60,10 @@ exports.login = async (req, res) => {
   });
 
   res.send({
-    message: "Login successful",
-    token,
-  });
+  message: "Login successful",
+  token,
+  id: user._id,
+  username: user.username,
+});
+
 };

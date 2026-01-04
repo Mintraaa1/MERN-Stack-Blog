@@ -21,4 +21,7 @@ router.put("/:id", postController.upDatePost);
 // GET http://localhost:5000/api/v1/post/1
 router.delete("/:id", postController.deletePost);
 
+
+
+
 module.exports = router;

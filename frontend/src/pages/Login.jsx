@@ -49,7 +49,7 @@ export default function Login() {
       });
 
       Swal.fire("Success", "Login successful", "success").then(() => {
-        navigate("/post/2"); 
+        navigate("/my-posts"); 
       });
     }
 

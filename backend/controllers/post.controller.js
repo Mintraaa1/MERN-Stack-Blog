@@ -166,4 +166,5 @@ exports.deletePost = async (req, res) => {
         message: error.message || "Some errors occurred while registering a new user",
     });
 }
-}
+};
+

@@ -73,3 +73,4 @@ const PostPage = () => {
     </>
   );
 }
+export default Post;
