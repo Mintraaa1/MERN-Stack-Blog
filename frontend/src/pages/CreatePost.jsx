@@ -1,50 +1,53 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import ReactQuill from "react-quill-new";
+import "react-quill-new/dist/quill.snow.css";
 import Swal from "sweetalert2";
 import api from "../services/api";
-import TokenService from "../services/token.service";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 
+// การตั้งค่าแถบเครื่องมือ (Toolbar) ของ Quill
+const modules = {
+  toolbar: [
+    [{ header: [1, 2, false] }],
+    ["bold", "italic", "underline", "strike", "blockquote"],
+    [{ list: "ordered" }, { list: "bullet" }],
+    ["link", "image"],
+    ["clean"],
+  ],
+};
+
 export default function CreatePost() {
   const navigate = useNavigate();
-  const user = TokenService.getUser();
-
-  const [form, setForm] = useState({
-    title: "",
-    summary: "",
-    content: "",
-  });
+  const [title, setTitle] = useState("");
+  const [summary, setSummary] = useState("");
+  const [content, setContent] = useState("");
+  const [files, setFiles] = useState("");
   const [loading, setLoading] = useState(false);
-
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setForm((prev) => ({ ...prev, [name]: value }));
-  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (loading) return;
 
-    if (!form.title || !form.summary || !form.content) {
-      Swal.fire("Error", "Please fill all fields", "error");
-      return;
-    }
+    // การส่งไฟล์ต้องใช้ FormData
+    const data = new FormData();
+    data.set("title", title);
+    data.set("summary", summary);
+    data.set("content", content);
+    data.set("file", files[0]); // ส่งไฟล์รูปภาพ
 
     try {
       setLoading(true);
+      await api.post("/post", data, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
 
-      const res = await api.post("/post", form);
-
-      Swal.fire("Success", "Post created", "success").then(() => {
-        navigate(`/post/${res.data._id}`);
+      Swal.fire("Success", "สร้างโพสต์เรียบร้อยแล้ว", "success").then(() => {
+        navigate("/my-posts");
       });
     } catch (err) {
-      Swal.fire(
-        "Error",
-        err.response?.data?.message || "Create post failed",
-        "error"
-      );
+      Swal.fire("Error", "ไม่สามารถสร้างโพสต์ได้", "error");
     } finally {
       setLoading(false);
     }
@@ -52,50 +55,44 @@ export default function CreatePost() {
 
   return (
     <>
-      <Navbar variant="owner" username={user?.username} />
+      <Navbar variant="owner" />
+      <div className="min-h-screen bg-gray-100 p-6 flex justify-center">
+        <div className="max-w-4xl w-full bg-white rounded-lg shadow-lg p-10">
+          <h1 className="text-2xl font-bold text-center mb-8">Create New Post</h1>
+          
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <div>
+              <label className="block font-semibold mb-1">Title</label>
+              <input type="text" value={title} onChange={(e) => setTitle(e.target.value)} className="w-full border p-2 rounded" placeholder="หัวข้อ" />
+            </div>
 
-      <div className="min-h-screen bg-gradient-to-br from-indigo-500 via-purple-500 to-blue-500 p-6">
-        <div className="max-w-3xl mx-auto bg-white rounded-xl shadow-md p-8 mt-6">
-          <h1 className="text-2xl font-bold text-center mb-6">
-            Create New Post
-          </h1>
+            <div>
+              <label className="block font-semibold mb-1">Summary</label>
+              <input type="text" value={summary} onChange={(e) => setSummary(e.target.value)} className="w-full border p-2 rounded" placeholder="คำอธิบายสั้นๆ" />
+            </div>
 
-          <form className="space-y-5" onSubmit={handleSubmit}>
-            <input
-              name="title"
-              value={form.title}
-              onChange={handleChange}
-              placeholder="Title"
-              className="w-full border px-3 py-2 rounded"
-            />
+            <div>
+              <label className="block font-semibold mb-1">Content</label>
+              <ReactQuill 
+                theme="snow" 
+                value={content} 
+                onChange={setContent} 
+                modules={modules} 
+                className="bg-white h-64 mb-12" // เว้นที่ให้ Editor
+              />
+            </div>
 
-            <input
-              name="summary"
-              value={form.summary}
-              onChange={handleChange}
-              placeholder="Summary"
-              className="w-full border px-3 py-2 rounded"
-            />
+            <div className="pt-4">
+              <label className="block font-semibold mb-1">Upload Image</label>
+              <input type="file" onChange={(e) => setFiles(e.target.files)} className="w-full border p-2 rounded bg-gray-50" />
+            </div>
 
-            <textarea
-              name="content"
-              rows={8}
-              value={form.content}
-              onChange={handleChange}
-              placeholder="Content"
-              className="w-full border px-3 py-2 rounded"
-            />
-
-            <button
-              disabled={loading}
-              className="w-full bg-indigo-600 text-white py-2 rounded"
-            >
-              {loading ? "Creating..." : "Create Post"}
+            <button disabled={loading} className="w-full bg-blue-600 text-white py-3 rounded-lg font-bold hover:bg-blue-700 transition">
+              {loading ? "กำลังสร้าง..." : "Create Post"}
             </button>
           </form>
         </div>
       </div>
-
       <Footer />
     </>
   );

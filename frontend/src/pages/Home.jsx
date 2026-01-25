@@ -34,7 +34,7 @@ const Home = () => {
         username={userInfo?.username}
       />
       <div className="min-h-screen p-6 bg-gradient-to-br from-blue-500 via-purple-500 to-blue-600">
-        <h1 className="text-xl font-bold mb-4 text-white">Home Page</h1>
+        
         <div
           onClick={() => navigate("/post/1")}
           className="bg-white rounded-xl shadow-md p-4 mb-6 flex space-x-4 cursor-pointer hover:-translate-y-1 hover:shadow-xl transition"

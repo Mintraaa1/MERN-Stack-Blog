@@ -56,7 +56,7 @@ export default function Author() {
                   <p className="text-sm text-gray-600">
                     by {post.author?.username}
                   </p>
-                  <p className="text-sm text-gray-600">{post.sumary}</p>
+                  <p className="text-sm text-gray-600">{post.summary}</p>
                 </div>
 
                 <button
