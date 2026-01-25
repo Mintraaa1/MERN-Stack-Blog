@@ -29,7 +29,7 @@ const Header = () => {
             </div>
             <div className="navbar-end">
                 {userInfo?.username ? (
-                    <span className="mr-4">Hello, {userInfo.username}</span>
+                    <span className="mr-4">Helloo, {userInfo.username}</span>
                 ) : (
                     <a href="/login" className="btn">Login</a>
                 )}
